@@ -19,6 +19,11 @@
 
 int resolucion = 800;
 
+int flag = 1;
+
+Color Guanacaste,Alajuela,Puntarenas,Heredia;
+Color Limon,Cartago,SanJose;
+
 /* Matrices para las provincias
 ** 0: Guanacaste 1: Puntarenas Peninsula
 ** 2: Alajuela 3: Heredia
@@ -278,7 +283,6 @@ void scaline(){
         }
         actualizaSlope(&ActiveEdgeTuple);
     }
-    printf("scaline completo\n");
 }
 
 int computeCode(double x, double y){
@@ -853,144 +857,221 @@ void CoordMapas(){
     //Fin
 }
 
+void setColores(){
+    Guanacaste.r=0;Guanacaste.g=1;Guanacaste.b=0;
+    Puntarenas.r=1;Puntarenas.g=0.4;Puntarenas.b=0;
+    Alajuela.r=1;Alajuela.g=0;Alajuela.b=0;
+    Heredia.r=1;Heredia.g=1;Heredia.b=0;
+    Limon.r=0;Limon.g=1;Limon.b=1;
+    Cartago.r=0;Cartago.g=0;Cartago.b=1;
+    SanJose.r=1;SanJose.g=1;SanJose.b=1;
+}
+
+void setColor(Color color){
+    glColor3f(color.r,color.g,color.b);
+}
+
+void relleno(){
+    if (flag){
+        int i,j;
+        // Guanacaste
+        setColor(Guanacaste);
+        clear();
+        for( j = 0 ; j < (lineas - 1); j++ ) {        
+            almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[(j + 1)][0].x,valores_0[(j + 1)][1].y);
+        }
+        if (j == (lineas -1)) {
+            almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[0][0].x,valores_0[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Puntarenas Peninsula
+        setColor(Puntarenas);//Anaranjado
+        clear();
+        for( j = 0 ; j < (lineas1 - 1); j++ ) {
+            almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
+        }
+        if (j == (lineas1 -1)) {
+            almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Alajuela  
+        setColor(Alajuela); //Rojo 
+        clear();
+        for( j = 0 ; j < (lineas3 - 1); j++ ) {
+            almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[(j + 1)][0].x,valores_2[(j + 1)][1].y);
+        }
+        if (j == (lineas3 -1)) {
+            almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[0][0].x,valores_2[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Heredia
+        setColor(Heredia); // Amarillo
+        clear();
+        for( j = 0 ; j < (lineas4 - 1); j++ ) {
+            almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[(j + 1)][0].x,valores_3[(j + 1)][1].y);
+        }
+        if (j == (lineas4 -1)) {
+            almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[0][0].x,valores_3[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Limon
+        setColor(Limon); //Cyan
+        clear();
+        for( j = 0 ; j < (lineas5 - 1); j++ ) {
+            almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[(j + 1)][0].x,valores_4[(j + 1)][1].y);
+        }
+        if (j == (lineas5 -1)) {
+            almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[0][0].x,valores_4[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Cartago
+        setColor(Cartago); //Azul
+        clear();
+        for( j = 0 ; j < (lineas6 - 1); j++ ) {
+            almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[(j + 1)][0].x,valores_5[(j + 1)][1].y);
+        }
+        if (j == (lineas6 -1)) {
+            almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[0][0].x,valores_5[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        // San Jose
+        setColor(SanJose); // Blanco
+        clear();
+        for( j = 0 ; j < (lineas7 - 1); j++ ) {
+            almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[(j + 1)][0].x,valores_6[(j + 1)][1].y);
+        }
+        if (j == (lineas7 -1)) {
+            almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[0][0].x,valores_6[0][1].y);
+        }
+        scaline();
+        glFlush();
+     //--------------------------------------------------------------------------------------------------------- 
+        //Puntarenas Costa
+        setColor(Puntarenas); //Anaranjado
+        clear();
+        for( j = 0 ; j < (lineas8 - 1); j++ ) {
+            almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[(j + 1)][0].x,valores_7[(j + 1)][1].y);
+        }
+        if (j == (lineas8 -1)) {
+            almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[0][0].x,valores_7[0][1].y);
+        }
+        scaline();
+        glFlush();
+    }else{
+        printf("texturas\n");
+    }
+}
+
 void lineasMapa(){
 	
-	int i,j,count = 0,x1,y1,x2,y2;
+	int i,j;
 	// Guanacaste
-	glColor3f(0,1,0); //color verde
-    //Pinta desde el (x0,y0) al (x1, y1) y asi sucesivamente
-	for( j = 0 ; j < (lineas - 2); j++ ) {        
+	setColor(Guanacaste); //color verde
+	for( j = 0 ; j < (lineas - 1); j++ ) {        
 		bresenham(valores_0[j][0].x,valores_0[j][1].y,valores_0[(j + 1)][0].x,valores_0[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[(j + 1)][0].x,valores_0[(j + 1)][1].y);
 	}
-
-    // llega al ultimo punto de la matriz y pinta una linea desde este hasta (x0, y0)
-    if (j == (lineas -2)) {
+    if (j == (lineas -1)) {
 		bresenham(valores_0[j][0].x,valores_0[j][1].y,valores_0[0][0].x,valores_0[0][1].y);
-        almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[0][0].x,valores_0[0][1].y);
 	}
 	glFlush();
-    scaline();
-    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Puntarenas Peninsula
-	glColor3f(1,0.2,0); //Anaranjado
-    clear();
+	setColor(Puntarenas); //Anaranjado
 	for( j = 0 ; j < (lineas1 - 1); j++ ) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
 	}
-
 	if (j == (lineas1 -1)) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
-        almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
 	}
-	glFlush();
-    scaline();
     glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Alajuela	
-	glColor3f(1,0,0); //Rojo 
-    clear();
+	setColor(Alajuela); //Rojo 
 	for( j = 0 ; j < (lineas3 - 1); j++ ) {
 		bresenham(valores_2[j][0].x,valores_2[j][1].y,valores_2[(j + 1)][0].x,valores_2[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[(j + 1)][0].x,valores_2[(j + 1)][1].y);
 	}
 
 	if (j == (lineas3 -1)) {
 		bresenham(valores_2[j][0].x,valores_2[j][1].y,valores_2[0][0].x,valores_2[0][1].y);
-        almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[0][0].x,valores_2[0][1].y);
 	}
-	glFlush();
-    scaline();
     glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Heredia
-	glColor3f(1,1,0); // Amarillo
-    clear();
+	setColor(Heredia); // Amarillo
 	for( j = 0 ; j < (lineas4 - 1); j++ ) {
 		bresenham(valores_3[j][0].x,valores_3[j][1].y,valores_3[(j + 1)][0].x,valores_3[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[(j + 1)][0].x,valores_3[(j + 1)][1].y);
 	}
 
 	if (j == (lineas4 -1)) {
 		bresenham(valores_3[j][0].x,valores_3[j][1].y,valores_3[0][0].x,valores_3[0][1].y);
-        almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[0][0].x,valores_3[0][1].y);
 	}
 	glFlush();
-    scaline();
-    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Limon
-	glColor3f(0,1,1); //Cyan
-    clear();
+	setColor(Limon); //Cyan
 	for( j = 0 ; j < (lineas5 - 1); j++ ) {
 		bresenham(valores_4[j][0].x,valores_4[j][1].y,valores_4[(j + 1)][0].x,valores_4[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[(j + 1)][0].x,valores_4[(j + 1)][1].y);
 	}
 
 	if (j == (lineas5 -1)) {
 		bresenham(valores_4[j][0].x,valores_4[j][1].y,valores_4[0][0].x,valores_4[0][1].y);
-        almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[0][0].x,valores_4[0][1].y);
 	}
-
-	glFlush();
-    scaline();
     glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Cartago
-	glColor3f(0,0,1); //Azul
-    clear();
+	setColor(Cartago); //Azul
 	for( j = 0 ; j < (lineas6 - 1); j++ ) {
 		bresenham(valores_5[j][0].x,valores_5[j][1].y,valores_5[(j + 1)][0].x,valores_5[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[(j + 1)][0].x,valores_5[(j + 1)][1].y);
 	}
 
 	if (j == (lineas6 -1)) {
 		bresenham(valores_5[j][0].x,valores_5[j][1].y,valores_5[0][0].x,valores_5[0][1].y);
-        almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[0][0].x,valores_5[0][1].y);
 	}
-	glFlush();
-    scaline();
     glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     // San Jose
-	glColor3f(1,1,1); // Blanco
-    clear();
+	setColor(SanJose); // Blanco
 	for( j = 0 ; j < (lineas7 - 1); j++ ) {
 		bresenham(valores_6[j][0].x,valores_6[j][1].y,valores_6[(j + 1)][0].x,valores_6[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[(j + 1)][0].x,valores_6[(j + 1)][1].y);
 	}
 
 	if (j == (lineas7 -1)) {
 		bresenham(valores_6[j][0].x,valores_6[j][1].y,valores_6[0][0].x,valores_6[0][1].y);
-        almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[0][0].x,valores_6[0][1].y);
 	}
-	glFlush();
-    scaline();
     glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Puntarenas Costa
-	glColor3f(1,0.4,0); //Anaranjado
-    clear();
+	setColor(Puntarenas); //Anaranjado
 	for( j = 0 ; j < (lineas8 - 1); j++ ) {
 		bresenham(valores_7[j][0].x,valores_7[j][1].y,valores_7[(j + 1)][0].x,valores_7[(j + 1)][1].y);
-        almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[(j + 1)][0].x,valores_7[(j + 1)][1].y);
 	}
 
 	if (j == (lineas8 -1)) {
 		bresenham(valores_7[j][0].x,valores_7[j][1].y,valores_7[0][0].x,valores_7[0][1].y);
-        almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[0][0].x,valores_7[0][1].y);
 	}
-	glFlush();
-    scaline();
     glFlush();
+
+    sleep(5);
+    relleno();
 }
 
 
 int main(int argc,char** argv){
 
 	IniciaMatrices();
+    setColores();
 	CoordMapas();
 
 	glutInit(&argc, argv);

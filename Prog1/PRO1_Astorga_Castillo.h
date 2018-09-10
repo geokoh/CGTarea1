@@ -25,6 +25,13 @@ typedef struct
 	double valor;
 } MatrizOp;
 
+typedef struct 
+{
+	float r;
+	float g;
+	float b;
+}Color;
+
 typedef struct edgebucket 
 {
     int ymax;
