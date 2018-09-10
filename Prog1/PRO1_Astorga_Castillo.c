@@ -15,6 +15,8 @@
 #include <math.h>
 #include <unistd.h>
 
+//#define maxWD 800 //link con ancho de la resolucion
+
 int resolucion = 800;
 
 /* Matrices para las provincias
@@ -51,11 +53,24 @@ int x_max;
 int y_min;
 int x_min;
 
+//File *Archivo;
+
+EdgeTableTuple EdgeTable[maxWD], ActiveEdgeTuple;
+
+
+
 void plot(int x, int y){
 	// Representa el pixel
 		glBegin(GL_POINTS);
 		glVertex2i(x,y);
 		glEnd();
+}
+
+void plot_(int x0,int y0,int x1, int y1){
+    glBegin(GL_LINES);
+    glVertex2i(x0,y0);
+    glVertex2i(x1,y1);
+    glEnd();
 }
 
 void bresenham(int x0,int y0,int x1,int y1){
@@ -77,7 +92,6 @@ void bresenham(int x0,int y0,int x1,int y1){
 	if(y1 < y0) incY = -1;
 
 	if (delta_x > delta_y){
-
 		d = 2* delta_y-delta_x;
 		delta_NE = 2*(delta_y-delta_x);
 		delta_E = 2*delta_y;
@@ -112,6 +126,159 @@ void bresenham(int x0,int y0,int x1,int y1){
 			plot(Xp,Yp);
 		}
 	}
+}
+
+void sort(EdgeTableTuple *entrada){
+    int i,j;
+    EdgeBucket temp;
+
+    for(i=1; i < entrada->countEdgeBucket; i++){
+        temp.ymax = entrada->buckets[i].ymax;
+        temp.xofymin = entrada->buckets[i].xofymin;
+        temp.slopeinverse = entrada->buckets[i].slopeinverse;
+
+        j = i- 1;
+
+        while ((temp.xofymin < entrada->buckets[j].xofymin) && (j>=0)){
+            entrada->buckets[j+1].ymax = entrada->buckets[j].ymax;
+            entrada->buckets[j+1].xofymin = entrada->buckets[j].xofymin;
+            entrada->buckets[j+1].slopeinverse = entrada->buckets[j].slopeinverse;
+            j= j-1;
+        }
+        entrada->buckets[j+1].ymax = temp.ymax;
+        entrada->buckets[j+1].xofymin = temp.xofymin;
+        entrada->buckets[j+1].slopeinverse = temp.slopeinverse;
+    }
+}
+
+void almacenaTupla(EdgeTableTuple *entrada,int ymaxAlmacena,int xMinAlmacena,float min){
+    (entrada->buckets[(entrada)->countEdgeBucket]).ymax = ymaxAlmacena;
+    (entrada->buckets[(entrada)->countEdgeBucket]).xofymin = (float)xMinAlmacena;
+    (entrada->buckets[(entrada)->countEdgeBucket]).slopeinverse = min;
+
+    sort(entrada);
+    (entrada->countEdgeBucket)++;
+}
+
+void almacenaPuntoTabla(int x0,int y0,int x1 ,int y1){
+    float m, min;
+    int ymaxAlmacena, xMinAlmacena, scaline;
+
+    if (x1==x0){
+        min = 0.000000;
+    }else{
+        m = ((float)(y1-y0))/((float)(x1-x0));
+
+        if (y1==y0)
+            return ;
+
+        min = (float)1.0/m;
+    }
+
+    if (y0>y1){
+        //almacenaTupla(&EdgeTable[y1],y1,x1,min);
+        scaline = y1;
+        ymaxAlmacena = y0;
+        xMinAlmacena = x1;
+    }else{
+        //almacenaTupla(&EdgeTable[y0],y1,x0,min);
+        scaline = y0;
+        ymaxAlmacena = y1;
+        xMinAlmacena = x0;
+    }
+
+    almacenaTupla(&EdgeTable[scaline],ymaxAlmacena,xMinAlmacena,min);
+}
+
+void EliminarEje(EdgeTableTuple *Tupla, int yy){
+    int i,j;
+    for (i=0; i < Tupla->countEdgeBucket;i++){
+        if(Tupla->buckets[i].ymax == yy){
+
+            //printf("\nRemoved at %d\n", yy );
+
+            for (j = i; j < Tupla->countEdgeBucket -1;j++){
+                Tupla->buckets[j].ymax =Tupla->buckets[j+1].ymax;
+                Tupla->buckets[j].xofymin =Tupla->buckets[j+1].xofymin;
+                Tupla->buckets[j].slopeinverse = Tupla->buckets[j+1].slopeinverse;
+            }
+            Tupla->countEdgeBucket--;
+            i--;
+        }
+    }
+}
+
+void actualizaSlope(EdgeTableTuple *Tupla){
+    int i;
+    for (i=0; i<Tupla->countEdgeBucket;i++){
+        (Tupla->buckets[i]).xofymin = (Tupla->buckets[i]).xofymin + (Tupla->buckets[i]).slopeinverse;
+    }
+}
+
+void scaline(){
+    int i, j, x0,ymax0,x1,ymax1, Flag = 0, contador;
+
+    for (i = 0; i < maxWD; i++){
+        for(j=0; j < EdgeTable[i].countEdgeBucket;j++){
+            almacenaTupla(&ActiveEdgeTuple,EdgeTable[i].buckets[j].ymax,
+                EdgeTable[i].buckets[j].xofymin,EdgeTable[i].buckets[j].slopeinverse);
+        }
+
+        EliminarEje(&ActiveEdgeTuple,i);
+
+        sort(&ActiveEdgeTuple);
+
+        j = 0;
+        Flag = 0;
+        contador = 0;
+        x0 = 0;
+        x1 = 0;
+        ymax0 = 0;
+        ymax1 = 0;
+
+        while (j<ActiveEdgeTuple.countEdgeBucket){
+            if(contador%2==0){
+                x0 = (int)(ActiveEdgeTuple.buckets[j].xofymin);
+                ymax0 = ActiveEdgeTuple.buckets[j].ymax;
+
+                if (x0==x1){
+                    if (((x0==ymax0)&&(x1!=ymax1))||((x0!=ymax0)&&(x1==ymax1))){
+                        x1=x0;
+                        ymax1=ymax0;
+                    }else{
+                        contador++;
+                    }
+                }else{
+                    contador++;
+                }
+            }else{
+                x1 = (int)ActiveEdgeTuple.buckets[j].xofymin;
+                ymax1 = ActiveEdgeTuple.buckets[j].ymax;
+
+                Flag = 0;
+
+                if (x0 == x1){
+                    if (((x0==ymax0)&&(x1!=ymax1))||((x0!=ymax0)&&(x1==ymax1))){
+                        x0 = x1;
+                        ymax0 = ymax1;
+                    }else{
+                        contador++;
+                        Flag = 1;
+                    }
+                }else{
+                    contador++;
+                    Flag =1;
+                }
+
+                if(Flag){
+                    plot_(x0,i,x1,i);
+                }
+            }
+            j++;
+        }
+        actualizaSlope(&ActiveEdgeTuple);
+    }
+    printf("scaline completo\n");
 }
 
 int computeCode(double x, double y){
@@ -330,7 +497,7 @@ void IniciaMatrices(){
     int i,j;
 
     //Inicializa las matrices
-    valores_0 = (Matriz **)malloc(lineas * sizeof(Matriz*));
+    valores_0 = (Matriz **)malloc(lineas  * sizeof(Matriz*));
 	valores_1 = (Matriz **)malloc(lineas1 * sizeof(Matriz*));
 	valores_2 = (Matriz **)malloc(lineas3 * sizeof(Matriz*));
 	valores_3 = (Matriz **)malloc(lineas4 * sizeof(Matriz*));
@@ -347,6 +514,14 @@ void IniciaMatrices(){
 	for (i = 0; i < lineas6; i++){valores_5[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas7; i++){valores_6[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas8; i++){valores_7[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
+
+    for (i = 0; i < resolucion; i++){EdgeTable[i].countEdgeBucket=0;}
+    ActiveEdgeTuple.countEdgeBucket=0;
+}
+
+void clear(){
+    for (int i = 0; i < resolucion; i++){EdgeTable[i].countEdgeBucket=0;}
+    ActiveEdgeTuple.countEdgeBucket=0;
 }
 
 void CoordMapas(){
@@ -403,6 +578,8 @@ void CoordMapas(){
     valores_0[21][1].y = 42*10;
     valores_0[22][0].x = 6*10;
     valores_0[22][1].y = 42*10;
+    //valores_0[23][0].x = 5*10; 
+    //valores_0[23][1].y = 43*10;
     //Fin
     // Vertices Puntarenas Peninsula
     valores_1[0][0].x = 10*10; 
@@ -678,106 +855,136 @@ void CoordMapas(){
 
 void lineasMapa(){
 	
-	int i,j;
+	int i,j,count = 0,x1,y1,x2,y2;
 	// Guanacaste
 	glColor3f(0,1,0); //color verde
     //Pinta desde el (x0,y0) al (x1, y1) y asi sucesivamente
-	for( j = 0 ; j < (lineas - 1); j++ ) {
+	for( j = 0 ; j < (lineas - 2); j++ ) {        
 		bresenham(valores_0[j][0].x,valores_0[j][1].y,valores_0[(j + 1)][0].x,valores_0[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[(j + 1)][0].x,valores_0[(j + 1)][1].y);
 	}
 
     // llega al ultimo punto de la matriz y pinta una linea desde este hasta (x0, y0)
-	if (j == (lineas -1)) {
+    if (j == (lineas -2)) {
 		bresenham(valores_0[j][0].x,valores_0[j][1].y,valores_0[0][0].x,valores_0[0][1].y);
+        almacenaPuntoTabla(valores_0[j][0].x,valores_0[j][1].y,valores_0[0][0].x,valores_0[0][1].y);
 	}
 	glFlush();
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Puntarenas Peninsula
-	glColor3f(1,0.4,0); //Anaranjado
-
+	glColor3f(1,0.2,0); //Anaranjado
+    clear();
 	for( j = 0 ; j < (lineas1 - 1); j++ ) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
 	}
 
 	if (j == (lineas1 -1)) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
+        almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
 	}
 	glFlush();
-
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Alajuela	
 	glColor3f(1,0,0); //Rojo 
-
+    clear();
 	for( j = 0 ; j < (lineas3 - 1); j++ ) {
 		bresenham(valores_2[j][0].x,valores_2[j][1].y,valores_2[(j + 1)][0].x,valores_2[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[(j + 1)][0].x,valores_2[(j + 1)][1].y);
 	}
 
 	if (j == (lineas3 -1)) {
 		bresenham(valores_2[j][0].x,valores_2[j][1].y,valores_2[0][0].x,valores_2[0][1].y);
+        almacenaPuntoTabla(valores_2[j][0].x,valores_2[j][1].y,valores_2[0][0].x,valores_2[0][1].y);
 	}
 	glFlush();
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Heredia
 	glColor3f(1,1,0); // Amarillo
- 
+    clear();
 	for( j = 0 ; j < (lineas4 - 1); j++ ) {
 		bresenham(valores_3[j][0].x,valores_3[j][1].y,valores_3[(j + 1)][0].x,valores_3[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[(j + 1)][0].x,valores_3[(j + 1)][1].y);
 	}
 
 	if (j == (lineas4 -1)) {
 		bresenham(valores_3[j][0].x,valores_3[j][1].y,valores_3[0][0].x,valores_3[0][1].y);
+        almacenaPuntoTabla(valores_3[j][0].x,valores_3[j][1].y,valores_3[0][0].x,valores_3[0][1].y);
 	}
 	glFlush();
-
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Limon
 	glColor3f(0,1,1); //Cyan
- 
+    clear();
 	for( j = 0 ; j < (lineas5 - 1); j++ ) {
 		bresenham(valores_4[j][0].x,valores_4[j][1].y,valores_4[(j + 1)][0].x,valores_4[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[(j + 1)][0].x,valores_4[(j + 1)][1].y);
 	}
 
 	if (j == (lineas5 -1)) {
 		bresenham(valores_4[j][0].x,valores_4[j][1].y,valores_4[0][0].x,valores_4[0][1].y);
+        almacenaPuntoTabla(valores_4[j][0].x,valores_4[j][1].y,valores_4[0][0].x,valores_4[0][1].y);
 	}
 
 	glFlush();
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Cartago
 	glColor3f(0,0,1); //Azul
- 
+    clear();
 	for( j = 0 ; j < (lineas6 - 1); j++ ) {
 		bresenham(valores_5[j][0].x,valores_5[j][1].y,valores_5[(j + 1)][0].x,valores_5[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[(j + 1)][0].x,valores_5[(j + 1)][1].y);
 	}
 
 	if (j == (lineas6 -1)) {
 		bresenham(valores_5[j][0].x,valores_5[j][1].y,valores_5[0][0].x,valores_5[0][1].y);
+        almacenaPuntoTabla(valores_5[j][0].x,valores_5[j][1].y,valores_5[0][0].x,valores_5[0][1].y);
 	}
 	glFlush();
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     // San Jose
 	glColor3f(1,1,1); // Blanco
- 
+    clear();
 	for( j = 0 ; j < (lineas7 - 1); j++ ) {
 		bresenham(valores_6[j][0].x,valores_6[j][1].y,valores_6[(j + 1)][0].x,valores_6[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[(j + 1)][0].x,valores_6[(j + 1)][1].y);
 	}
 
 	if (j == (lineas7 -1)) {
 		bresenham(valores_6[j][0].x,valores_6[j][1].y,valores_6[0][0].x,valores_6[0][1].y);
+        almacenaPuntoTabla(valores_6[j][0].x,valores_6[j][1].y,valores_6[0][0].x,valores_6[0][1].y);
 	}
 	glFlush();
+    scaline();
+    glFlush();
  //--------------------------------------------------------------------------------------------------------- 
     //Puntarenas Costa
 	glColor3f(1,0.4,0); //Anaranjado
- 
+    clear();
 	for( j = 0 ; j < (lineas8 - 1); j++ ) {
 		bresenham(valores_7[j][0].x,valores_7[j][1].y,valores_7[(j + 1)][0].x,valores_7[(j + 1)][1].y);
+        almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[(j + 1)][0].x,valores_7[(j + 1)][1].y);
 	}
 
 	if (j == (lineas8 -1)) {
 		bresenham(valores_7[j][0].x,valores_7[j][1].y,valores_7[0][0].x,valores_7[0][1].y);
+        almacenaPuntoTabla(valores_7[j][0].x,valores_7[j][1].y,valores_7[0][0].x,valores_7[0][1].y);
 	}
 	glFlush();
+    scaline();
+    glFlush();
 }
 
 

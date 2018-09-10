@@ -11,7 +11,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
  
-
+#define maxVer 10000
+#define maxWD 800
 
 typedef struct
 {
@@ -23,3 +24,16 @@ typedef struct
 {
 	double valor;
 } MatrizOp;
+
+typedef struct edgebucket 
+{
+    int ymax;
+    float xofymin;
+    float slopeinverse;
+}EdgeBucket;
+
+typedef struct edgetabletup
+{     
+    int countEdgeBucket;
+    EdgeBucket buckets[maxVer];
+}EdgeTableTuple;
