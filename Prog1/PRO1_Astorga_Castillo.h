@@ -13,6 +13,7 @@
  
 #define maxVer 10000
 #define maxWD 800
+#define maxHT 800
 
 typedef struct
 {

@@ -15,9 +15,8 @@
 #include <math.h>
 #include <unistd.h>
 
-//#define maxWD 800 //link con ancho de la resolucion
-
 int resolucion = 800;
+int Ymax,Xmax,Xmin,Ymin;
 
 int flag = 1;
 
@@ -223,7 +222,7 @@ void actualizaSlope(EdgeTableTuple *Tupla){
 void scaline(){
     int i, j, x0,ymax0,x1,ymax1, Flag = 0, contador;
 
-    for (i = 0; i < maxWD; i++){
+    for (i = 0; i < maxHT; i++){
         for(j=0; j < EdgeTable[i].countEdgeBucket;j++){
             almacenaTupla(&ActiveEdgeTuple,EdgeTable[i].buckets[j].ymax,
                 EdgeTable[i].buckets[j].xofymin,EdgeTable[i].buckets[j].slopeinverse);
@@ -519,12 +518,12 @@ void IniciaMatrices(){
 	for (i = 0; i < lineas7; i++){valores_6[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas8; i++){valores_7[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 
-    for (i = 0; i < resolucion; i++){EdgeTable[i].countEdgeBucket=0;}
+    for (i = 0; i < maxHT; i++){EdgeTable[i].countEdgeBucket=0;}
     ActiveEdgeTuple.countEdgeBucket=0;
 }
 
 void clear(){
-    for (int i = 0; i < resolucion; i++){EdgeTable[i].countEdgeBucket=0;}
+    for (int i = 0; i < maxHT; i++){EdgeTable[i].countEdgeBucket=0;}
     ActiveEdgeTuple.countEdgeBucket=0;
 }
 
@@ -1067,6 +1066,66 @@ void lineasMapa(){
     relleno();
 }
 
+void specialKeyInput(int key,int x,int y){
+    int mod;
+    switch(key){
+        case GLUT_KEY_RIGHT:
+            printf("flecha derecha\n");
+            break;
+        case GLUT_KEY_LEFT:
+            printf("flecha izquierda\n");
+            break;
+        case GLUT_KEY_UP:
+            printf("flecha arriba\n");
+            break;
+        case GLUT_KEY_DOWN:
+            printf("flecha abajo\n");
+            break;
+        //default:
+        //    mod = glutGetModifiers();
+        //    if (mod == GLUT_ACTIVE_CTRL){
+        //       printf("yeah shift\n");
+        //       break;
+        //}
+    }
+}
+
+void keyboard(unsigned char key,int x,int y){
+    switch(key){
+        case '+':
+            printf("caracter +\n");
+            break;
+        case '-':
+            printf("caracter -\n");
+            break;
+        case 's':
+            printf("solo lineas\n");
+            break;
+        case 'a':
+            printf("relleno colores\n");
+            break;
+        case 'd':
+            printf("relleno texturas\n");
+            break;
+        case 'q':
+            exit(0);
+            break;
+        case 'z':
+            printf("desactiva animacion\n");
+            break;
+    }
+}
+
+int* UniToFrame(int X,int Y){
+    int Xf,Yf;
+    static int r[2];
+    Xf= maxHT*((X-Xmin)/(Xmax-Xmin));
+    Yf= maxWD*((Y-Ymin)/(Ymax-Ymin));
+    r[0]=Xf;
+    r[1]=Yf;
+
+    return r;
+}
 
 int main(int argc,char** argv){
 
@@ -1076,11 +1135,14 @@ int main(int argc,char** argv){
 
 	glutInit(&argc, argv);
    	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-  	glutInitWindowSize(resolucion+10,resolucion+10);
+  	glutInitWindowSize(maxWD+10,maxHT+10);
   	glutCreateWindow("PROG0_GeovannyAstorga_MaurcioCastillo");
   	glClear(GL_COLOR_BUFFER_BIT);
   	glMatrixMode(GL_PROJECTION);
   	gluOrtho2D(-0.5, resolucion +0.5, -0.5, resolucion + 0.5);
   	glutDisplayFunc(lineasMapa);
+    glutKeyboardFunc(keyboard);
+    glutSpecialFunc(specialKeyInput);
   	glutMainLoop();
+    return 0;
 }
