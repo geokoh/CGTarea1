@@ -39,12 +39,13 @@ Matriz **valores_6;
 Matriz **valores_7;
 
 /* Ints para la cantidad de vertices
-** lineas: Guanacaste lineas1: Puntarenas Peninsula
+** lineas: Guanacaste lineas2: Puntarenas Peninsula
 ** lineas3: Alajuela lineas4: Heredia
 ** lineas5: Limon lineas6: Cartago
 ** lineas7: San Jose lineas 8: Puntarenas Costa
 */
-int lineas, lineas1, lineas3, lineas4,lineas5, lineas6, lineas7, lineas8;
+int lineas, lineas2, lineas3, lineas4,lineas5, lineas6, lineas7, lineas8;
+int lineas_b, lineas2_b, lineas3_b, lineas4_b,lineas5_b, lineas6_b, lineas7_b, lineas8_b;
 
 int INSIDE = 0;
 int LEFT = 1;
@@ -382,6 +383,59 @@ void cohenSutherlandClip(double x1, double y1,double x2, double y2){
         printf("Linea fuera de la ventana \n");
 }
 
+void aplicarZoom(MatrizOp** matrizZoom) {
+    int i;
+
+    for (i = 0; i < lineas; i++) {
+        valores_0[i][0].x = valores_0[i][0].x * matrizZoom[0][0].valor;
+        valores_0[i][1].y = valores_0[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas2; i++) {
+        valores_1[i][0].x = valores_1[i][0].x * matrizZoom[0][0].valor;
+        valores_1[i][1].y = valores_1[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas3; i++) {
+        valores_2[i][0].x = valores_2[i][0].x * matrizZoom[0][0].valor;
+        valores_2[i][1].y = valores_2[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas4; i++) {
+        valores_3[i][0].x = valores_3[i][0].x * matrizZoom[0][0].valor;
+        valores_3[i][1].y = valores_3[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas5; i++) {
+        valores_4[i][0].x = valores_4[i][0].x * matrizZoom[0][0].valor;
+        valores_4[i][1].y = valores_4[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas6; i++) {
+        valores_5[i][0].x = valores_5[i][0].x * matrizZoom[0][0].valor;
+        valores_5[i][1].y = valores_5[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas7; i++) {
+        valores_6[i][0].x = valores_6[i][0].x * matrizZoom[0][0].valor;
+        valores_6[i][1].y = valores_6[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+    for (i = 0; i < lineas8; i++) {
+        valores_7[i][0].x = valores_7[i][0].x * matrizZoom[0][0].valor;
+        valores_7[i][1].y = valores_7[i][1].y * matrizZoom[1][1].valor;
+
+    }
+
+}
+
 MatrizOp** Zoom(int Sx,int Sy){
 
 	//Inicialización de la matriz de operaciones
@@ -393,13 +447,13 @@ MatrizOp** Zoom(int Sx,int Sy){
    for(int i = 0; i < 3; i++) {
    		for(int j=0;j<3; j++){
    			if(i==j){
-   				if(j==1){
+   				if(j==0){
    					matriz_zoom[i][j].valor = Sx;
    				}
-   				if(j==2){
+   				if(j==1){
    					matriz_zoom[i][j].valor = Sy;
    				}
-   				if(j==3){
+   				if(j==2){
    					matriz_zoom[i][j].valor = 1;
    				}
    			}else{
@@ -408,6 +462,59 @@ MatrizOp** Zoom(int Sx,int Sy){
    		}
    }
    return matriz_zoom;
+}
+
+void aplicarPan(MatrizOp** matrizPan) {
+    int i;
+
+    for (i = 0; i < lineas; i++) {
+        valores_0[i][0].x = valores_0[i][0].x + matrizPan[0][3].valor;
+        valores_0[i][1].y = valores_0[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas2; i++) {
+        valores_1[i][0].x = valores_1[i][0].x + matrizPan[0][3].valor;
+        valores_1[i][1].y = valores_1[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas3; i++) {
+        valores_2[i][0].x = valores_2[i][0].x + matrizPan[0][3].valor;
+        valores_2[i][1].y = valores_2[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas4; i++) {
+        valores_3[i][0].x = valores_3[i][0].x + matrizPan[0][3].valor;
+        valores_3[i][1].y = valores_3[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas5; i++) {
+        valores_4[i][0].x = valores_4[i][0].x + matrizPan[0][3].valor;
+        valores_4[i][1].y = valores_4[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas6; i++) {
+        valores_5[i][0].x = valores_5[i][0].x + matrizPan[0][3].valor;
+        valores_5[i][1].y = valores_5[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas7; i++) {
+        valores_6[i][0].x = valores_6[i][0].x + matrizPan[0][3].valor;
+        valores_6[i][1].y = valores_6[i][1].y + matrizPan[1][3].valor;
+
+    }
+
+    for (i = 0; i < lineas8; i++) {
+        valores_7[i][0].x = valores_7[i][0].x + matrizPan[0][3].valor;
+        valores_7[i][1].y = valores_7[i][1].y + matrizPan[1][3].valor;
+
+    }
+
 }
 
 MatrizOp** Pan(int delta_x,int delta_y){
@@ -440,6 +547,58 @@ MatrizOp** Pan(int delta_x,int delta_y){
    return matriz_pan;
 }
 
+
+void aplicarRotarLeft(MatrizOp** matrizLeft) {
+    int i;
+
+    for (i = 0; i < lineas; i++) {
+        valores_0[i][0].x = (valores_0[i][0].x * matrizLeft[0][0].valor) + (valores_0[i][1].y * matrizLeft[0][1].valor);
+        valores_0[i][1].y = (valores_0[i][0].x * matrizLeft[1][0].valor) + (valores_0[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas2; i++) {
+        valores_1[i][0].x = (valores_1[i][0].x * matrizLeft[0][0].valor) + (valores_1[i][1].y * matrizLeft[0][1].valor);
+        valores_1[i][1].y = (valores_1[i][0].x * matrizLeft[1][0].valor) + (valores_1[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas3; i++) {
+        valores_2[i][0].x = (valores_2[i][0].x * matrizLeft[0][0].valor) + (valores_2[i][1].y * matrizLeft[0][1].valor);
+        valores_2[i][1].y = (valores_2[i][0].x * matrizLeft[1][0].valor) + (valores_2[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas4; i++) {
+        valores_3[i][0].x = (valores_3[i][0].x * matrizLeft[0][0].valor) + (valores_3[i][1].y * matrizLeft[0][1].valor);
+        valores_3[i][1].y = (valores_3[i][0].x * matrizLeft[1][0].valor) + (valores_3[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas5; i++) {
+        valores_4[i][0].x = (valores_4[i][0].x * matrizLeft[0][0].valor) + (valores_4[i][1].y * matrizLeft[0][1].valor);
+        valores_4[i][1].y = (valores_4[i][0].x * matrizLeft[1][0].valor) + (valores_4[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas6; i++) {
+        valores_5[i][0].x = (valores_5[i][0].x * matrizLeft[0][0].valor) + (valores_5[i][1].y * matrizLeft[0][1].valor);
+        valores_5[i][1].y = (valores_5[i][0].x * matrizLeft[1][0].valor) + (valores_5[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas7; i++) {
+        valores_6[i][0].x = (valores_6[i][0].x * matrizLeft[0][0].valor) + (valores_6[i][1].y * matrizLeft[0][1].valor);
+        valores_6[i][1].y = (valores_6[i][0].x * matrizLeft[1][0].valor) + (valores_6[i][1].y * matrizLeft[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas8; i++) {
+        valores_7[i][0].x = (valores_7[i][0].x * matrizLeft[0][0].valor) + (valores_7[i][1].y * matrizLeft[0][1].valor);
+        valores_7[i][1].y = (valores_7[i][0].x * matrizLeft[1][0].valor) + (valores_7[i][1].y * matrizLeft[1][1].valor);
+    }
+
+}
 MatrizOp** RotateLeft(double alfa){
 
 	//Inicialización de la matriz de operaciones
@@ -460,6 +619,58 @@ MatrizOp** RotateLeft(double alfa){
 	matriz_RotL[2][0].valor = 0;
 	matriz_RotL[2][1].valor = 0;
 	matriz_RotL[2][2].valor = 1;
+}
+
+void aplicarRotarRight(MatrizOp** matrizRight) {
+    int i;
+
+    for (i = 0; i < lineas; i++) {
+        valores_0[i][0].x = (valores_0[i][0].x * matrizRight[0][0].valor) + (valores_0[i][1].y * matrizRight[0][1].valor);
+        valores_0[i][1].y = (valores_0[i][0].x * matrizRight[1][0].valor) + (valores_0[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas2; i++) {
+        valores_1[i][0].x = (valores_1[i][0].x * matrizRight[0][0].valor) + (valores_1[i][1].y * matrizRight[0][1].valor);
+        valores_1[i][1].y = (valores_1[i][0].x * matrizRight[1][0].valor) + (valores_1[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas3; i++) {
+        valores_2[i][0].x = (valores_2[i][0].x * matrizRight[0][0].valor) + (valores_2[i][1].y * matrizRight[0][1].valor);
+        valores_2[i][1].y = (valores_2[i][0].x * matrizRight[1][0].valor) + (valores_2[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas4; i++) {
+        valores_3[i][0].x = (valores_3[i][0].x * matrizRight[0][0].valor) + (valores_3[i][1].y * matrizRight[0][1].valor);
+        valores_3[i][1].y = (valores_3[i][0].x * matrizRight[1][0].valor) + (valores_3[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas5; i++) {
+        valores_4[i][0].x = (valores_4[i][0].x * matrizRight[0][0].valor) + (valores_4[i][1].y * matrizRight[0][1].valor);
+        valores_4[i][1].y = (valores_4[i][0].x * matrizRight[1][0].valor) + (valores_4[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas6; i++) {
+        valores_5[i][0].x = (valores_5[i][0].x * matrizRight[0][0].valor) + (valores_5[i][1].y * matrizRight[0][1].valor);
+        valores_5[i][1].y = (valores_5[i][0].x * matrizRight[1][0].valor) + (valores_5[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas7; i++) {
+        valores_6[i][0].x = (valores_6[i][0].x * matrizRight[0][0].valor) + (valores_6[i][1].y * matrizRight[0][1].valor);
+        valores_6[i][1].y = (valores_6[i][0].x * matrizRight[1][0].valor) + (valores_6[i][1].y * matrizRight[1][1].valor);
+
+    }
+
+    for (i = 0; i < lineas8; i++) {
+        valores_7[i][0].x = (valores_7[i][0].x * matrizRight[0][0].valor) + (valores_7[i][1].y * matrizRight[0][1].valor);
+        valores_7[i][1].y = (valores_7[i][0].x * matrizRight[1][0].valor) + (valores_7[i][1].y * matrizRight[1][1].valor);
+    }
+
 }
 
 MatrizOp** RotateRight(double alfa){
@@ -490,18 +701,27 @@ void IniciaMatrices(){
 
 	//la cantidad de vertices por provincia
     lineas = 23;
-    lineas1 = 8;
+    lineas2 = 8;
     lineas3 = 19;
     lineas4 = 9;
     lineas5 = 23;
     lineas6 = 12;
     lineas7 = 19;
     lineas8 = 38;
+
+    lineas_b = 23;
+    lineas2_b = 8;
+    lineas3_b = 19;
+    lineas4_b = 9;
+    lineas5_b = 23;
+    lineas6_b = 12;
+    lineas7_b = 19;
+    lineas8_b = 38;
     int i,j;
 
     //Inicializa las matrices
     valores_0 = (Matriz **)malloc(lineas  * sizeof(Matriz*));
-	valores_1 = (Matriz **)malloc(lineas1 * sizeof(Matriz*));
+	valores_1 = (Matriz **)malloc(lineas2 * sizeof(Matriz*));
 	valores_2 = (Matriz **)malloc(lineas3 * sizeof(Matriz*));
 	valores_3 = (Matriz **)malloc(lineas4 * sizeof(Matriz*));
 	valores_4 = (Matriz **)malloc(lineas5 * sizeof(Matriz*));
@@ -510,7 +730,7 @@ void IniciaMatrices(){
 	valores_7 = (Matriz **)malloc(lineas8 * sizeof(Matriz*));
 	//Agrega las filas
   	for (i = 0; i < lineas; i++) {valores_0[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
-	for (i = 0; i < lineas1; i++){valores_1[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
+	for (i = 0; i < lineas2; i++){valores_1[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas3; i++){valores_2[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas4; i++){valores_3[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
 	for (i = 0; i < lineas5; i++){valores_4[i] = (Matriz *)malloc(lineas * sizeof(Matriz));}
@@ -888,10 +1108,10 @@ void relleno(){
         //Puntarenas Peninsula
         setColor(Puntarenas);//Anaranjado
         clear();
-        for( j = 0 ; j < (lineas1 - 1); j++ ) {
+        for( j = 0 ; j < (lineas2 - 1); j++ ) {
             almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
         }
-        if (j == (lineas1 -1)) {
+        if (j == (lineas2 -1)) {
             almacenaPuntoTabla(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
         }
         scaline();
@@ -988,10 +1208,10 @@ void lineasMapa(){
  //--------------------------------------------------------------------------------------------------------- 
     //Puntarenas Peninsula
 	setColor(Puntarenas); //Anaranjado
-	for( j = 0 ; j < (lineas1 - 1); j++ ) {
+	for( j = 0 ; j < (lineas2 - 1); j++ ) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[(j + 1)][0].x,valores_1[(j + 1)][1].y);
 	}
-	if (j == (lineas1 -1)) {
+	if (j == (lineas2 -1)) {
 		bresenham(valores_1[j][0].x,valores_1[j][1].y,valores_1[0][0].x,valores_1[0][1].y);
 	}
     glFlush();
@@ -1067,18 +1287,27 @@ void lineasMapa(){
 }
 
 void specialKeyInput(int key,int x,int y){
+    MatrizOp **traslado;
     int mod;
     switch(key){
         case GLUT_KEY_RIGHT:
+            traslado = Pan(-20, 0);
+            aplicarPan(traslado);
             printf("flecha derecha\n");
             break;
         case GLUT_KEY_LEFT:
+            traslado = Pan(20, 0);
+            aplicarPan(traslado);
             printf("flecha izquierda\n");
             break;
         case GLUT_KEY_UP:
+            traslado = Pan(0, -20);
+            aplicarPan(traslado);
             printf("flecha arriba\n");
             break;
         case GLUT_KEY_DOWN:
+            traslado = Pan(0, 20);
+            aplicarPan(traslado);
             printf("flecha abajo\n");
             break;
         //default:
@@ -1091,11 +1320,17 @@ void specialKeyInput(int key,int x,int y){
 }
 
 void keyboard(unsigned char key,int x,int y){
+    
+    MatrizOp **traslado;
     switch(key){
         case '+':
+            traslado = Zoom(20, 20);
+            aplicarZoom(traslado);
             printf("caracter +\n");
             break;
         case '-':
+            traslado = Zoom(-20, -20);
+            aplicarZoom(traslado);
             printf("caracter -\n");
             break;
         case 's':
