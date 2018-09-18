@@ -18,7 +18,8 @@
 int resolucion = 800;
 int Ymax,Xmax,Xmin,Ymin;
 
-int flag = 1;
+int flagTextura = 1;
+int flagRelleno = 0;
 
 Color Guanacaste,Alajuela,Puntarenas,Heredia;
 Color Limon,Cartago,SanJose;
@@ -71,11 +72,153 @@ int x_max;
 int y_min;
 int x_min;
 
+float**GT;
+float**PT;
+float**AT;
+float**HT;
+float**LT;
+float**CT;
+float**ST;
+float**Aux;
+
 //File *Archivo;
 
 EdgeTableTuple EdgeTable[maxWD], ActiveEdgeTuple;
 
+int CentrarX();
+int CentrarY();
+void ClippeoPoligono();
+void lineasMapa();
+void Inicio();
 
+
+void initTextures() {
+    FILE *streamIn;
+
+    int byte, i;
+
+    //Guanacaste /Imagenes
+
+    streamIn = fopen("./Imagenes/GT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    GT = malloc(255 * 255 * sizeof(int *));
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        GT[i] = malloc(3 * sizeof(int));
+        GT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        GT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        GT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+    //Puntarenas
+    streamIn = fopen("./Imagenes/PT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    PT = malloc(255 * 255 * sizeof(int *));
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        PT[i] = malloc(3 * sizeof(int));
+        PT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        PT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        PT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+
+    //Alajuela
+    streamIn = fopen("./Imagenes/AT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    AT = malloc(255 * 255 * sizeof(int *));
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        AT[i] = malloc(3 * sizeof(int));
+        AT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        AT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        AT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+
+    //Heredia
+    streamIn = fopen("./Imagenes/HT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    HT = malloc(255 * 255 * sizeof(int *));
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        HT[i] = malloc(3 * sizeof(int));
+        HT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        HT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        HT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+
+    //Limon
+    streamIn = fopen("./Imagenes/LT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    LT = malloc(255 * 255 * sizeof(int *));
+
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        LT[i] = malloc(3 * sizeof(int));
+        LT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        LT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        LT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+
+    //Cartago
+    streamIn = fopen("./Imagenes/CT.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    CT = malloc(255 * 255 * sizeof(int *));
+
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        CT[i] = malloc(3 * sizeof(int));
+        CT[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        CT[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        CT[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+
+    //SanJose
+    streamIn = fopen("./Imagenes/ST.tga", "r");
+    if (streamIn == (FILE *) 0) {
+        printf("File opening error ocurred. Exiting program.\n");
+        exit(0);
+    }
+
+    ST = malloc(255 * 255 * sizeof(int *));
+
+
+    for (i = 0; i < 18; i++) byte = getc(streamIn);
+    for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+        ST[i] = malloc(3 * sizeof(int));
+        ST[i][2] = (float) getc(streamIn) / 255.0;  // use BMP 24bit with no alpha channel
+        ST[i][1] = (float) getc(streamIn) / 255.0;  // BMP uses BGR but we want RGB, grab byte-by-byte
+        ST[i][0] = (float) getc(streamIn) / 255.0;  // reverse-order array indexing fixes RGB issue...
+    }
+}
 
 void plot(int x, int y){
 	// Representa el pixel
@@ -91,6 +234,17 @@ void plot_(int x0,int y0,int x1, int y1){
     glEnd();
 }
 
+void plotExp(int x0,int x1,int y){
+    int i,pos;
+    for(i=x0;i<x1+2;i++){
+        pos = (int)(y%255)*255+i%255;
+        glColor3f(Aux[pos][0],Aux[pos][1],Aux[pos][2]);
+        glBegin(GL_POINTS);
+        glVertex2i(i,y);
+        glEnd();
+    }
+}
+
 void bresenham(int x0,int y0,int x1,int y1){
 
 	int delta_E, delta_NE, d, Xp, Yp;
@@ -102,6 +256,10 @@ void bresenham(int x0,int y0,int x1,int y1){
 
 	Xp = x0; Yp = y0; //valores iniciales
 
+
+    if(!flagTextura){
+        glColor3f(Aux[Xp%255*Yp%255][0],Aux[Xp%255*Yp%255][1],Aux[Xp%255*Yp%255][2]);
+    }
 	plot(Xp,Yp); //pinta iniciales
 
 	incX=1;incY=1; //incrementos para los puntos
@@ -124,6 +282,9 @@ void bresenham(int x0,int y0,int x1,int y1){
 				Yp+=incY;
 				d= d+delta_NE;
 			}
+            if(!flagTextura){
+                glColor3f(Aux[Xp%255*Yp%255][0],Aux[Xp%255*Yp%255][1],Aux[Xp%255*Yp%255][2]);
+            }
 			plot(Xp,Yp);
 		}
 	}else{
@@ -141,6 +302,9 @@ void bresenham(int x0,int y0,int x1,int y1){
 				Yp+=incY;
 				d= d+delta_NE;
 			}
+            if(!flagTextura){
+                glColor3f(Aux[Xp%255*Yp%255][0],Aux[Xp%255*Yp%255][1],Aux[Xp%255*Yp%255][2]);
+            }
 			plot(Xp,Yp);
 		}
 	}
@@ -289,7 +453,12 @@ void scaline(){
                 }
 
                 if(Flag){
-                    plot_(x0,i,x1,i);
+                    //if(flagTextura){
+                    //   plot_(x0,i,x1,i);
+                    //}else{
+                bresenham(x0,i,x1,i);
+                    //    plotExp(x0,x1,i);
+                    //}
                 }
             }
             j++;
@@ -548,146 +717,178 @@ void Pan(int delta_x,int delta_y){
    				}
    			}
    		}
-   }
-
-   
+   }   
 }
 
+MatrizOp** ubicar(MatrizOp** matrizIn){
+    int Xc = CentrarX();
+    int Yc = CentrarY();
+    int i;
+    MatrizOp **opera = (MatrizOp **)malloc(3 * sizeof(MatrizOp*));
+    for (int i = 0; i < 3; i++){
+       opera[i] = (MatrizOp *)malloc(3 * sizeof(MatrizOp));
+    }   
+    Pan(Xc,Yc);
+    opera[0][0].valor=matrizIn[0][0].valor;
+    opera[0][1].valor=matrizIn[0][1].valor;
+    opera[0][2].valor=traslado[0][2].valor;
+    opera[1][0].valor=matrizIn[1][0].valor;
+    opera[1][1].valor=matrizIn[1][1].valor;
+    opera[1][2].valor=traslado[1][2].valor;
+    opera[2][0].valor=0;
+    opera[2][1].valor=0;
+    opera[2][2].valor=1;
+    Pan(-Xc,-Yc);
 
-void aplicarRotarLeft() {
+    opera[0][2].valor=opera[0][0].valor*traslado[0][2].valor+opera[0][1].valor*traslado[1][2].valor+opera[0][2].valor;
+
+    opera[1][2].valor=opera[1][0].valor*traslado[0][2].valor+opera[1][1].valor*traslado[1][2].valor+opera[1][2].valor;
+
+    return opera;
+}
+
+void aplicarRotarLeft(MatrizOp** rota) {
     int i;
 
-    for (i = 0; i < lineas; i++) {
-        valores_0[i][0].x = (valores_0[i][0].x * traslado[0][0].valor) + (valores_0[i][1].y * traslado[0][1].valor);
-        valores_0[i][1].y = (valores_0[i][0].x * traslado[1][0].valor) + (valores_0[i][1].y * traslado[1][1].valor);
+    for (i = 0; i < lineas; i++) { //(-Xc + ((Xc + valores_0[i][0].x) * traslado[0][0].valor))
+        valores_0[i][0].x = (valores_0[i][0].x * rota[0][0].valor) + (valores_0[i][1].y * rota[0][1].valor);
+        valores_0[i][1].y = (valores_0[i][0].x * rota[1][0].valor) + (valores_0[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas2; i++) {
-        valores_1[i][0].x = (valores_1[i][0].x * traslado[0][0].valor) + (valores_1[i][1].y * traslado[0][1].valor);
-        valores_1[i][1].y = (valores_1[i][0].x * traslado[1][0].valor) + (valores_1[i][1].y * traslado[1][1].valor);
+        valores_1[i][0].x = (valores_1[i][0].x * rota[0][0].valor) + (valores_1[i][1].y * rota[0][1].valor);
+        valores_1[i][1].y = (valores_1[i][0].x * rota[1][0].valor) + (valores_1[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas3; i++) {
-        valores_2[i][0].x = (valores_2[i][0].x * traslado[0][0].valor) + (valores_2[i][1].y * traslado[0][1].valor);
-        valores_2[i][1].y = (valores_2[i][0].x * traslado[1][0].valor) + (valores_2[i][1].y * traslado[1][1].valor);
+        valores_2[i][0].x = (valores_2[i][0].x * rota[0][0].valor) + (valores_2[i][1].y * rota[0][1].valor);
+        valores_2[i][1].y = (valores_2[i][0].x * rota[1][0].valor) + (valores_2[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas4; i++) {
-        valores_3[i][0].x = (valores_3[i][0].x * traslado[0][0].valor) + (valores_3[i][1].y * traslado[0][1].valor);
-        valores_3[i][1].y = (valores_3[i][0].x * traslado[1][0].valor) + (valores_3[i][1].y * traslado[1][1].valor);
+        valores_3[i][0].x = (valores_3[i][0].x * rota[0][0].valor) + (valores_3[i][1].y * rota[0][1].valor);
+        valores_3[i][1].y = (valores_3[i][0].x * rota[1][0].valor) + (valores_3[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas5; i++) {
-        valores_4[i][0].x = (valores_4[i][0].x * traslado[0][0].valor) + (valores_4[i][1].y * traslado[0][1].valor);
-        valores_4[i][1].y = (valores_4[i][0].x * traslado[1][0].valor) + (valores_4[i][1].y * traslado[1][1].valor);
+        valores_4[i][0].x = (valores_4[i][0].x * rota[0][0].valor) + (valores_4[i][1].y * rota[0][1].valor);
+        valores_4[i][1].y = (valores_4[i][0].x * rota[1][0].valor) + (valores_4[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas6; i++) {
-        valores_5[i][0].x = (valores_5[i][0].x * traslado[0][0].valor) + (valores_5[i][1].y * traslado[0][1].valor);
-        valores_5[i][1].y = (valores_5[i][0].x * traslado[1][0].valor) + (valores_5[i][1].y * traslado[1][1].valor);
+        valores_5[i][0].x = (valores_5[i][0].x * rota[0][0].valor) + (valores_5[i][1].y * rota[0][1].valor);
+        valores_5[i][1].y = (valores_5[i][0].x * rota[1][0].valor) + (valores_5[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas7; i++) {
-        valores_6[i][0].x = (valores_6[i][0].x * traslado[0][0].valor) + (valores_6[i][1].y * traslado[0][1].valor);
-        valores_6[i][1].y = (valores_6[i][0].x * traslado[1][0].valor) + (valores_6[i][1].y * traslado[1][1].valor);
+        valores_6[i][0].x = (valores_6[i][0].x * rota[0][0].valor) + (valores_6[i][1].y * rota[0][1].valor);
+        valores_6[i][1].y = (valores_6[i][0].x * rota[1][0].valor) + (valores_6[i][1].y * rota[1][1].valor);
 
     }
 
     for (i = 0; i < lineas8; i++) {
-        valores_7[i][0].x = (valores_7[i][0].x * traslado[0][0].valor) + (valores_7[i][1].y * traslado[0][1].valor);
-        valores_7[i][1].y = (valores_7[i][0].x * traslado[1][0].valor) + (valores_7[i][1].y * traslado[1][1].valor);
+        valores_7[i][0].x = (valores_7[i][0].x * rota[0][0].valor) + (valores_7[i][1].y * rota[0][1].valor);
+        valores_7[i][1].y = (valores_7[i][0].x * rota[1][0].valor) + (valores_7[i][1].y * rota[1][1].valor);
     }
 
 }
-void RotateLeft(double alfa){
-
+MatrizOp** RotateLeft(double alfa){
+    MatrizOp **rota = (MatrizOp **)malloc(3 * sizeof(MatrizOp*));
+    for (int i = 0; i < 3; i++){
+       rota[i] = (MatrizOp *)malloc(3 * sizeof(MatrizOp));
+    }   
 
 	//Valores de rotación con cos y sin 
-	traslado[0][0].valor = cos(alfa);
-	traslado[0][1].valor = -1*sin(alfa);
-	traslado[1][0].valor = sin(alfa);
-	traslado[1][1].valor = cos(alfa);
+	rota[0][0].valor = cos(alfa);
+	rota[0][1].valor = -1*sin(alfa);
+	rota[1][0].valor = sin(alfa);
+	rota[1][1].valor = cos(alfa);
 	
 	//Ceros de la matriz para la coordenadas homogeneas
-	traslado[0][2].valor = 0;
-	traslado[1][2].valor = 0;
-	traslado[2][0].valor = 0;
-	traslado[2][1].valor = 0;
-	traslado[2][2].valor = 1;
+	rota[0][2].valor = 0;
+	rota[1][2].valor = 0;
+	rota[2][0].valor = 0;
+	rota[2][1].valor = 0;
+	rota[2][2].valor = 1;
+    return rota;
 }
 
-void aplicarRotarRight() {
+void aplicarRotarRight(MatrizOp** matrizIn) {
     int i;
 
     for (i = 0; i < lineas; i++) {
-        valores_0[i][0].x = (valores_0[i][0].x * traslado[0][0].valor) + (valores_0[i][1].y * traslado[0][1].valor);
-        valores_0[i][1].y = (valores_0[i][0].x * traslado[1][0].valor) + (valores_0[i][1].y * traslado[1][1].valor);
+        valores_0[i][0].x = (valores_0[i][0].x * matrizIn[0][0].valor) + (valores_0[i][1].y * matrizIn[0][1].valor);
+        valores_0[i][1].y = (valores_0[i][0].x * matrizIn[1][0].valor) + (valores_0[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas2; i++) {
-        valores_1[i][0].x = (valores_1[i][0].x * traslado[0][0].valor) + (valores_1[i][1].y * traslado[0][1].valor);
-        valores_1[i][1].y = (valores_1[i][0].x * traslado[1][0].valor) + (valores_1[i][1].y * traslado[1][1].valor);
+        valores_1[i][0].x = (valores_1[i][0].x * matrizIn[0][0].valor) + (valores_1[i][1].y * matrizIn[0][1].valor);
+        valores_1[i][1].y = (valores_1[i][0].x * matrizIn[1][0].valor) + (valores_1[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas3; i++) {
-        valores_2[i][0].x = (valores_2[i][0].x * traslado[0][0].valor) + (valores_2[i][1].y * traslado[0][1].valor);
-        valores_2[i][1].y = (valores_2[i][0].x * traslado[1][0].valor) + (valores_2[i][1].y * traslado[1][1].valor);
+        valores_2[i][0].x = (valores_2[i][0].x * matrizIn[0][0].valor) + (valores_2[i][1].y * matrizIn[0][1].valor);
+        valores_2[i][1].y = (valores_2[i][0].x * matrizIn[1][0].valor) + (valores_2[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas4; i++) {
-        valores_3[i][0].x = (valores_3[i][0].x * traslado[0][0].valor) + (valores_3[i][1].y * traslado[0][1].valor);
-        valores_3[i][1].y = (valores_3[i][0].x * traslado[1][0].valor) + (valores_3[i][1].y * traslado[1][1].valor);
+        valores_3[i][0].x = (valores_3[i][0].x * matrizIn[0][0].valor) + (valores_3[i][1].y * matrizIn[0][1].valor);
+        valores_3[i][1].y = (valores_3[i][0].x * matrizIn[1][0].valor) + (valores_3[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas5; i++) {
-        valores_4[i][0].x = (valores_4[i][0].x * traslado[0][0].valor) + (valores_4[i][1].y * traslado[0][1].valor);
-        valores_4[i][1].y = (valores_4[i][0].x * traslado[1][0].valor) + (valores_4[i][1].y * traslado[1][1].valor);
+        valores_4[i][0].x = (valores_4[i][0].x * matrizIn[0][0].valor) + (valores_4[i][1].y * matrizIn[0][1].valor);
+        valores_4[i][1].y = (valores_4[i][0].x * matrizIn[1][0].valor) + (valores_4[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas6; i++) {
-        valores_5[i][0].x = (valores_5[i][0].x * traslado[0][0].valor) + (valores_5[i][1].y * traslado[0][1].valor);
-        valores_5[i][1].y = (valores_5[i][0].x * traslado[1][0].valor) + (valores_5[i][1].y * traslado[1][1].valor);
+        valores_5[i][0].x = (valores_5[i][0].x * matrizIn[0][0].valor) + (valores_5[i][1].y * matrizIn[0][1].valor);
+        valores_5[i][1].y = (valores_5[i][0].x * matrizIn[1][0].valor) + (valores_5[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas7; i++) {
-        valores_6[i][0].x = (valores_6[i][0].x * traslado[0][0].valor) + (valores_6[i][1].y * traslado[0][1].valor);
-        valores_6[i][1].y = (valores_6[i][0].x * traslado[1][0].valor) + (valores_6[i][1].y * traslado[1][1].valor);
+        valores_6[i][0].x = (valores_6[i][0].x * matrizIn[0][0].valor) + (valores_6[i][1].y * matrizIn[0][1].valor);
+        valores_6[i][1].y = (valores_6[i][0].x * matrizIn[1][0].valor) + (valores_6[i][1].y * matrizIn[1][1].valor);
 
     }
 
     for (i = 0; i < lineas8; i++) {
-        valores_7[i][0].x = (valores_7[i][0].x * traslado[0][0].valor) + (valores_7[i][1].y * traslado[0][1].valor);
-        valores_7[i][1].y = (valores_7[i][0].x * traslado[1][0].valor) + (valores_7[i][1].y * traslado[1][1].valor);
+        valores_7[i][0].x = (valores_7[i][0].x * matrizIn[0][0].valor) + (valores_7[i][1].y * matrizIn[0][1].valor);
+        valores_7[i][1].y = (valores_7[i][0].x * matrizIn[1][0].valor) + (valores_7[i][1].y * matrizIn[1][1].valor);
     }
-
 }
 
-void RotateRight(double alfa){
+MatrizOp** RotateRight(double alfa){
+    MatrizOp **rota = (MatrizOp **)malloc(3 * sizeof(MatrizOp*));
+    for (int i = 0; i < 3; i++){
+       rota[i] = (MatrizOp *)malloc(3 * sizeof(MatrizOp));
+    }  
 
 	//Valores de rotación con cos y sin 
-	traslado[0][0].valor = cos(alfa);
-	traslado[0][1].valor = -1*sin(alfa);
-	traslado[1][0].valor = sin(alfa);
-	traslado[1][1].valor = cos(alfa);
+	rota[0][0].valor = cos(alfa);
+	rota[0][1].valor = -1*sin(alfa);
+	rota[1][0].valor = sin(alfa);
+	rota[1][1].valor = cos(alfa);
 
 	//Ceros de la matriz para la coordenadas homogeneas
-	traslado[0][2].valor = 0;
-	traslado[1][2].valor = 0;
-	traslado[2][0].valor = 0;
-	traslado[2][1].valor = 0;
-	traslado[2][2].valor = 1;
+	rota[0][2].valor = 0;
+	rota[1][2].valor = 0;
+	rota[2][0].valor = 0;
+	rota[2][1].valor = 0;
+	rota[2][2].valor = 1;
+    return rota;
 }
 
 void IniciaLineas() {
@@ -1447,108 +1648,211 @@ void setColor(Color color){
 }
 
 void relleno(){
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (flag){
-        int i,j;
-
-        // Guanacaste
-        setColor(Guanacaste);
-        clear();
-        for( j = 0 ; j < (lineas_p - 1); j++ ) {        
-            almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[(j + 1)][0].x,valores_0p[(j + 1)][1].y);
+    if (flagRelleno){
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (flagTextura){
+            int i,j;
+            // Guanacaste
+            setColor(Guanacaste);
+            clear();
+            for( j = 0 ; j < (lineas_p - 1); j++ ) {        
+                almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[(j + 1)][0].x,valores_0p[(j + 1)][1].y);
+            }
+            if (j == (lineas_p -1)) {
+                almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[0][0].x,valores_0p[0][1].y);
+            }
+            scaline();
+            
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Puntarenas Peninsula
+            setColor(Puntarenas);//Anaranjado
+            clear();
+            for( j = 0 ; j < (lineas2_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[(j + 1)][0].x,valores_1p[(j + 1)][1].y);
+            }
+            if (j == (lineas2_p -1)) {
+                almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[0][0].x,valores_1p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Alajuela  
+            setColor(Alajuela); //Rojo 
+            clear();
+            for( j = 0 ; j < (lineas3_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[(j + 1)][0].x,valores_2p[(j + 1)][1].y);
+            }
+            if (j == (lineas3_p -1)) {
+                almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[0][0].x,valores_2p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Heredia
+            setColor(Heredia); // Amarillo
+            clear();
+            for( j = 0 ; j < (lineas4_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[(j + 1)][0].x,valores_3p[(j + 1)][1].y);
+            }
+            if (j == (lineas4_p -1)) {
+                almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[0][0].x,valores_3p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Limon
+            setColor(Limon); //Cyan
+            clear();
+            for( j = 0 ; j < (lineas5_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[(j + 1)][0].x,valores_4p[(j + 1)][1].y);
+            }
+            if (j == (lineas5_p -1)) {
+                almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[0][0].x,valores_4p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Cartago
+            setColor(Cartago); //Azul
+            clear();
+            for( j = 0 ; j < (lineas6_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[(j + 1)][0].x,valores_5p[(j + 1)][1].y);
+            }
+            if (j == (lineas6_p -1)) {
+                almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[0][0].x,valores_5p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            // San Jose
+            setColor(SanJose); // Blanco
+            clear();
+            for( j = 0 ; j < (lineas7_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[(j + 1)][0].x,valores_6p[(j + 1)][1].y);
+            }
+            if (j == (lineas7_p -1)) {
+                almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[0][0].x,valores_6p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Puntarenas Costa
+            setColor(Puntarenas); //Anaranjado
+            clear();
+            for( j = 0 ; j < (lineas8_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[(j + 1)][0].x,valores_7p[(j + 1)][1].y);
+            }
+            if (j == (lineas8_p -1)) {
+                almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[0][0].x,valores_7p[0][1].y);
+            }
+            scaline();
+            glFlush();
+        }else{
+            int i,j;
+            Aux = malloc(255 * 255 * sizeof(int *));
+            for (i = 0; i < 255 * 255; i++) {    // foreach pixel
+                Aux[i] = malloc(3 * sizeof(int));
+            }
+            // Guanacaste
+            Aux=GT;
+            clear();
+            for( j = 0 ; j < (lineas_p - 1); j++ ) {        
+                almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[(j + 1)][0].x,valores_0p[(j + 1)][1].y);
+            }
+            if (j == (lineas_p -1)) {
+                almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[0][0].x,valores_0p[0][1].y);
+            }
+            scaline();
+            
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Puntarenas Peninsula
+            Aux=PT;
+            clear();
+            for( j = 0 ; j < (lineas2_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[(j + 1)][0].x,valores_1p[(j + 1)][1].y);
+            }
+            if (j == (lineas2_p -1)) {
+                almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[0][0].x,valores_1p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Alajuela  
+            Aux=AT;
+            clear();
+            for( j = 0 ; j < (lineas3_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[(j + 1)][0].x,valores_2p[(j + 1)][1].y);
+            }
+            if (j == (lineas3_p -1)) {
+                almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[0][0].x,valores_2p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Heredia
+            Aux=HT;
+            clear();
+            for( j = 0 ; j < (lineas4_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[(j + 1)][0].x,valores_3p[(j + 1)][1].y);
+            }
+            if (j == (lineas4_p -1)) {
+                almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[0][0].x,valores_3p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Limon
+            Aux=LT;
+            clear();
+            for( j = 0 ; j < (lineas5_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[(j + 1)][0].x,valores_4p[(j + 1)][1].y);
+            }
+            if (j == (lineas5_p -1)) {
+                almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[0][0].x,valores_4p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Cartago
+            Aux=CT;
+            clear();
+            for( j = 0 ; j < (lineas6_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[(j + 1)][0].x,valores_5p[(j + 1)][1].y);
+            }
+            if (j == (lineas6_p -1)) {
+                almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[0][0].x,valores_5p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            // San Jose
+            Aux=ST;
+            clear();
+            for( j = 0 ; j < (lineas7_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[(j + 1)][0].x,valores_6p[(j + 1)][1].y);
+            }
+            if (j == (lineas7_p -1)) {
+                almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[0][0].x,valores_6p[0][1].y);
+            }
+            scaline();
+            glFlush();
+         //--------------------------------------------------------------------------------------------------------- 
+            //Puntarenas Costa
+            Aux=PT;
+            clear();
+            for( j = 0 ; j < (lineas8_p - 1); j++ ) {
+                almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[(j + 1)][0].x,valores_7p[(j + 1)][1].y);
+            }
+            if (j == (lineas8_p -1)) {
+                almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[0][0].x,valores_7p[0][1].y);
+            }
+            scaline();
+            glFlush();
         }
-        if (j == (lineas_p -1)) {
-            almacenaPuntoTabla(valores_0p[j][0].x,valores_0p[j][1].y,valores_0p[0][0].x,valores_0p[0][1].y);
-        }
-        scaline();
-        
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Puntarenas Peninsula
-        setColor(Puntarenas);//Anaranjado
-        clear();
-        for( j = 0 ; j < (lineas2_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[(j + 1)][0].x,valores_1p[(j + 1)][1].y);
-        }
-        if (j == (lineas2_p -1)) {
-            almacenaPuntoTabla(valores_1p[j][0].x,valores_1p[j][1].y,valores_1p[0][0].x,valores_1p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Alajuela  
-        setColor(Alajuela); //Rojo 
-        clear();
-        for( j = 0 ; j < (lineas3_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[(j + 1)][0].x,valores_2p[(j + 1)][1].y);
-        }
-        if (j == (lineas3_p -1)) {
-            almacenaPuntoTabla(valores_2p[j][0].x,valores_2p[j][1].y,valores_2p[0][0].x,valores_2p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Heredia
-        setColor(Heredia); // Amarillo
-        clear();
-        for( j = 0 ; j < (lineas4_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[(j + 1)][0].x,valores_3p[(j + 1)][1].y);
-        }
-        if (j == (lineas4_p -1)) {
-            almacenaPuntoTabla(valores_3p[j][0].x,valores_3p[j][1].y,valores_3p[0][0].x,valores_3p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Limon
-        setColor(Limon); //Cyan
-        clear();
-        for( j = 0 ; j < (lineas5_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[(j + 1)][0].x,valores_4p[(j + 1)][1].y);
-        }
-        if (j == (lineas5_p -1)) {
-            almacenaPuntoTabla(valores_4p[j][0].x,valores_4p[j][1].y,valores_4p[0][0].x,valores_4p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Cartago
-        setColor(Cartago); //Azul
-        clear();
-        for( j = 0 ; j < (lineas6_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[(j + 1)][0].x,valores_5p[(j + 1)][1].y);
-        }
-        if (j == (lineas6_p -1)) {
-            almacenaPuntoTabla(valores_5p[j][0].x,valores_5p[j][1].y,valores_5p[0][0].x,valores_5p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        // San Jose
-        setColor(SanJose); // Blanco
-        clear();
-        for( j = 0 ; j < (lineas7_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[(j + 1)][0].x,valores_6p[(j + 1)][1].y);
-        }
-        if (j == (lineas7_p -1)) {
-            almacenaPuntoTabla(valores_6p[j][0].x,valores_6p[j][1].y,valores_6p[0][0].x,valores_6p[0][1].y);
-        }
-        scaline();
-        glFlush();
-     //--------------------------------------------------------------------------------------------------------- 
-        //Puntarenas Costa
-        setColor(Puntarenas); //Anaranjado
-        clear();
-        for( j = 0 ; j < (lineas8_p - 1); j++ ) {
-            almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[(j + 1)][0].x,valores_7p[(j + 1)][1].y);
-        }
-        if (j == (lineas8_p -1)) {
-            almacenaPuntoTabla(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[0][0].x,valores_7p[0][1].y);
-        }
-        scaline();
-        glFlush();
     }else{
-        printf("texturas\n");
+        lineasMapa();
     }
 }
 
@@ -1640,9 +1944,6 @@ void lineasMapa(){
 		bresenham(valores_7p[j][0].x,valores_7p[j][1].y,valores_7p[0][0].x,valores_7p[0][1].y);
 	}
     glFlush();
-
-    //sleep(5);
-   // relleno();
 }
 
 void specialKeyInput(int key,int x,int y){
@@ -1652,96 +1953,86 @@ void specialKeyInput(int key,int x,int y){
     switch(key){
         case GLUT_KEY_RIGHT:
             
-            Pan(-20, 0);
-            printf("fine\n");
+            Pan(20, 0);
             aplicarPan();
-            printf("fine\n");
             ClippeoPoligono();
-            printf("fine\n");
             relleno();
-            printf("flecha derecha\n");
             break;
         case GLUT_KEY_LEFT:
-            Pan(20, 0);
-            printf("fine\n");
+            Pan(-20, 0);
             aplicarPan();
-            printf("fine\n");
             ClippeoPoligono();
-            printf("fine\n");
             relleno();
-            printf("flecha izquierda\n");
             break;
         case GLUT_KEY_UP:
-            Pan(0, -20);
-            aplicarPan();
-            ClippeoPoligono();
-            relleno();
-            printf("flecha arriba\n");
-            break;
-        case GLUT_KEY_DOWN:
             Pan(0, 20);
             aplicarPan();
             ClippeoPoligono();
             relleno();
-            printf("flecha abajo\n");
             break;
-        //default:
-        //    mod = glutGetModifiers();
-        //    if (mod == GLUT_ACTIVE_CTRL){
-        //       printf("yeah shift\n");
-        //       break;
-        //}
+        case GLUT_KEY_DOWN:
+            Pan(0, -20);
+            aplicarPan();
+            ClippeoPoligono();
+            relleno();
+            break;
     }
 }
 
 void keyboard(unsigned char key,int x,int y){
+    MatrizOp **tempo = (MatrizOp **)malloc(3 * sizeof(MatrizOp*));
+    for (int i = 0; i < 3; i++){
+       tempo[i] = (MatrizOp *)malloc(3 * sizeof(MatrizOp));
+    }  
     
     switch(key){
-        case '+':
+        case '+': //Zoom In
             Zoom(1.5, 1.5);
             aplicarZoom();
             ClippeoPoligono();
             relleno();
-            printf("caracter +\n");
             break;
-        case '-':
+        case '-': //Zoom Out
             Zoom(0.6666, 0.6666);
             aplicarZoom();
             ClippeoPoligono();
             relleno();
-            printf("caracter -\n");
             break;
-        case 'l':
-            RotateLeft(0.523599);
-            aplicarRotarLeft(); 
+        case 'l': //Rotar Izquierda
+            tempo=ubicar(RotateLeft(0.523599));
+            aplicarRotarLeft(tempo); 
             ClippeoPoligono();
             relleno();
-            printf("caracter l\n");
             break;
-        case 'r':
-            RotateRight(-0.523599);
-            aplicarRotarRight();
+        case 'r': //Rotar Derecha
+            tempo=ubicar(RotateRight(-0.523599));
+            aplicarRotarRight(tempo);
             ClippeoPoligono(); 
             relleno();
-            printf("caracter l\n");
             break;
-        case 's':
-            printf("solo lineas\n");
+        case 's'://Solo pinta los bordes 
+            flagRelleno=0;
+            flagTextura=1;
             lineasMapa();
             break;
-        case 'a':
-            printf("relleno colores\n");
+        case 'a'://Relleno Colores
+            flagRelleno=1;
+            flagTextura=1;
+            ClippeoPoligono();
             relleno();
             break;
-        case 'd':
-            printf("relleno texturas\n");
+        case 'd'://Relleno Texturas
+            flagRelleno=1;
+            flagTextura=0;
+            ClippeoPoligono();
             relleno();
             break;
-        case 'q':
+        case 'q': //Salir
             exit(0);
             break;
-        case 'z':
-            printf("desactiva animacion\n");
+        case 'z'://Reinicio
+            flagRelleno=0;
+            Inicio();
             break;
     }
 }
@@ -1948,10 +2239,20 @@ void ClippeoPoligono(){
                  tamano_puntos);
 }
 
+void Inicio(){
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    flagTextura=1;
+    clear();
+    setColores();
+    CoordMapas();
+    lineasMapa();
+}
+
 int main(int argc,char** argv){
 
     IniciaLineas();
 	IniciaMatrices();
+    initTextures();
     setColores();
 	CoordMapas();
 
