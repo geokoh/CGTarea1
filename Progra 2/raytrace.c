@@ -8,11 +8,11 @@
 
 // GLOBAL VARIABLES
 unsigned int window_width = 1008, window_height = 567;
-float pixels[2000*567*3];
+float pixels[1008*567*3];
 
 // Scene information
-unsigned int numSpheres = 5;
-Sphere spheres[5];
+unsigned int numSpheres = 13;
+Sphere spheres[13];
 
 // Viewpoint information
 Vector e;
@@ -30,14 +30,14 @@ float b = -4, t = 4;
 // Global light information
 Vector light[3];
 float lightI = .7;
-int numLights = 1;
+int numLights = 3;
 
 // Default background color
 RGBf bgColor;
 
 // Control variables for the different features
 GLboolean antialias = GL_FALSE;
-GLboolean reflection = GL_FALSE;
+GLboolean reflection = GL_TRUE;
 GLboolean transparency = GL_FALSE;
 GLboolean depthOfField = GL_FALSE;
 
@@ -47,7 +47,7 @@ void init() {
     bgColor = newRGB(0, 0, 0);
 
     // Set the viewpoint
-    e = newVector(5, 0, 0);
+    e = newVector(10, 0, 0);
 
     // Calculate basis vectors
     Vector up = newVector(0, 0, 1);
@@ -61,47 +61,105 @@ void init() {
     light[0] = newVector(0,-1,-1);
     light[0] = scaleVector(1/mag(light[0]),light[0]);
 
-    light[1] = newVector(0,-1,1);
+    light[1] = newVector(1,-1,1);
     light[1] = scaleVector(1/mag(light[1]),light[1]);
 
     light[2] = newVector(-1,1,1);
     light[2] = scaleVector(1/mag(light[2]),light[2]);
 
     // Create spheres in scene
-    spheres[0].r = 1;
-    spheres[0].c = newVector(-2, -1, 1);
+    spheres[0].r = 0.5;
+    spheres[0].c = newVector(1, 1.2, 0.8);
     spheres[0].color = newRGB(255,255,0);
     spheres[0].id = 3;
     spheres[0].ri = 1;
     spheres[0].reflective = 1;
 
-    spheres[1].r = 1;
-    spheres[1].c = newVector(2, -1, -1);
+    spheres[1].r = 0.5;
+    spheres[1].c = newVector(1, -1.2, -0.8);
     spheres[1].color = newRGB(0,0,255);
     spheres[1].id = 1;
     spheres[1].ri = 1;
     spheres[1].reflective = 1;
 
-    spheres[2].r = 1;
-    spheres[2].c = newVector(0, -1, 1);
+    spheres[2].r = 0.5;
+    spheres[2].c = newVector(1, -1.2, 0.8);
     spheres[2].color = newRGB(0,255,0);
     spheres[2].id = 2;
-    spheres[2].ri = 1.2;
-    spheres[2].reflective = 0;
+    spheres[2].ri = 1;
+    spheres[2].reflective = 1;
 
-    spheres[3].r = 1;
-    spheres[3].c = newVector(1, 1, -1);
+    spheres[3].r = 0.5;
+    spheres[3].c = newVector(1, 1.2, -0.8);
     spheres[3].color = newRGB(180,180,180);
     spheres[3].id = 3;
     spheres[3].ri = 1;
     spheres[3].reflective = 1;
 
-    spheres[4].r = 1;
-    spheres[4].c = newVector(-0, 1, 1);
-    spheres[4].color = newRGB(255,0,0);
+    spheres[4].r = 0.5;
+    spheres[4].c = newVector(1, 0, 0);
+    spheres[4].color = newRGB(255,0,255);
     spheres[4].id = 0;
     spheres[4].ri = 1;
     spheres[4].reflective = 1;
+
+    spheres[5].r = 0.5;
+    spheres[5].c = newVector(1, 2.4, -1.6);
+    spheres[5].color = newRGB(100,255,0);
+    spheres[5].id = 2;
+    spheres[5].ri = 1;
+    spheres[5].reflective = 1;
+    
+    spheres[6].r = 0.5;
+    spheres[6].c = newVector(1, -2.4, -1.6);
+    spheres[6].color = newRGB(255,100,0);
+    spheres[6].id = 5;
+    spheres[6].ri = 1;
+    spheres[6].reflective = 1;
+
+    spheres[7].r = 0.5;
+    spheres[7].c = newVector(1, 2.4, 1.6);
+    spheres[7].color = newRGB(0,255,255);
+    spheres[7].id = 6;
+    spheres[7].ri = 1;
+    spheres[7].reflective = 1;
+
+    spheres[8].r = 0.5;
+    spheres[8].c = newVector(1, -2.4, 1.6);
+    spheres[8].color = newRGB(100,100,50);
+    spheres[8].id = 7;
+    spheres[8].ri = 1;
+    spheres[8].reflective = 1;
+
+    spheres[9].r = 0.5;
+    spheres[9].c = newVector(1, 0, 1.6);
+    spheres[9].color = newRGB(255,255,100);
+    spheres[9].id = 8;
+    spheres[9].ri = 1;
+    spheres[9].reflective = 1; 
+
+    spheres[10].r = 0.5;
+    spheres[10].c = newVector(1, 0, -1.6);
+    spheres[10].color = newRGB(255,100,100);
+    spheres[10].id = 8;
+    spheres[10].ri = 1;
+    spheres[10].reflective = 1; 
+
+    spheres[11].r = 0.5;
+    spheres[11].c = newVector(1, -2.4, 0);
+    spheres[11].color = newRGB(200,100,100);
+    spheres[11].id = 8;
+    spheres[11].ri = 1;
+    spheres[11].reflective = 1; 
+
+    spheres[12].r = 0.5;
+    spheres[12].c = newVector(1, 2.4, 0);
+    spheres[12].color = newRGB(100,200,100);
+    spheres[12].id = 8;
+    spheres[12].ri = 1;
+    spheres[12].reflective = 1; 
+
+
 }
 
 float calcIntersection(Ray ray, Sphere sphere) {
