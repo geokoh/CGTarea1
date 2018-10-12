@@ -1,7 +1,11 @@
 /* Tarea Programada #2 
  * Autor: Mauricio Castillo Vega
+ * Autor: Geovanny Astorga Lopez
  * Curso: Computer Graphics 2-2018
  * Profesor: Dr. Francisco Torres
+ * Fuentes Principales:
+ * https://gist.github.com/veb/4a184a1f53e5fa9fea02
+ * https://github.com/trentmwillis/ray-tracer
  */
 
 #include <GL/glut.h>
@@ -26,6 +30,9 @@ float pixeles[5008*5000*3];
 
 Esfera esferas[10000];
 Vector luces[1000];
+
+int resultado[10];
+float resultadoFloat[10];
 
 Vector e;
 float d = 10;
@@ -66,7 +73,6 @@ int escribirArchivo() {
 
     fwrite((const char *) &header, 1, sizeof(header), fp);
     int ipos;
-    // The image data is stored bottom-to-top, left-to-right
     for (int y = 0; y < alto; y++)
         for (int x = 0; x < ancho; x++) {
             ipos = (3*y*ancho) +(x*3); //
@@ -78,9 +84,9 @@ int escribirArchivo() {
 
     // The file footer
     static const char footer[26] =
-            "\0\0\0\0" // no extension area
-            "\0\0\0\0" // no developer directory
-            "TRUEVISION-XFILE" // yep, this is a TGA file
+            "\0\0\0\0" 
+            "\0\0\0\0" 
+            "TRUEVISION-XFILE" 
             ".";
     fwrite((const char *) &footer, 1, sizeof(footer), fp);
 
@@ -88,80 +94,84 @@ int escribirArchivo() {
     return 1;
 }
 
-void leerCaracter(){
+
+
+void leerInt()
+{
+    int x = 0;
+    char * token;
     char caracter[100];
-    char salida[100];
-
-    fgets(caracter,100,file);
-    int i=0;
-    while(caracter[i]!='20H'){
-        salida = caracter[i];
-        i++;
+    if((fgets(caracter, 100, file))!= EOF){
+    	token = strtok(caracter, " ");
+	    while( token != NULL ) {
+	      resultado[x] = atoi(token);
+	      x++;
+	      token = strtok(NULL, " ");
+	   }
+	    
     }
-    printf("%s\n", salida);
-    //}
-
-    //while((caracter = fgetc(file))!= EOF){ //&& isspace(caracter)){
-    //    printf("%d",caracter);
-    //}
-
-    //printf("%d\n", salida);
-    //return caracter;
-}
-
-int leerInt()
-{
-    int x;
-
-    leerCaracter();
-    //atol(x);
     
-    return x;
+
 }
 
-float leerFloat()
+void leerFloat()
 {
-    float x;
-
-    leerCaracter();
-        
-    return x;
+    int x = 0;
+    char * token;
+    char * token2;
+    char caracter[100];
+    if((fgets(caracter, 100, file))!= EOF){
+        token = strtok(caracter, " ");
+	    while( token != NULL ) {;
+	      resultadoFloat[x] = strtof(token, &token2);
+	      x++;
+	      token = strtok(NULL, " ");
+	    }
+    }
+    
 }
 
 void inicioVectores() {
-
-    ancho = leerInt();
-    printf("%d\n", ancho);
-    alto = leerInt();
-    cantColores = leerInt();
-    numeroEsferas = leerInt();
-    facAtenuacion = leerFloat();
-    luz = leerFloat();
-    numeroLuces = leerInt();
-    intensidadAmbiente = leerFloat();
+	leerInt();
+    ancho = resultado[0];
+    alto = resultado[1];
+    leerInt();
+    cantColores = resultado[0];
+    leerInt();
+    numeroEsferas = resultado[0];
+    leerFloat();
+    facAtenuacion = resultadoFloat[0];
+    leerFloat();
+    luz = resultadoFloat[0];
+    leerInt();
+    numeroLuces = resultado[0];
+    leerFloat();
+    intensidadAmbiente = resultadoFloat[0];
 
     int r,g,b;
     float x,y,z;
-
-    r = leerInt();
-    g = leerInt();
-    b = leerInt();
+    leerInt();
+    r = resultado[0];
+    g = resultado[1];
+    b = resultado[2];
 
     colorFondo = setColor(r, g, b);
-
-    x = leerFloat();
-    y = leerFloat();
-    z = leerFloat(); 
+    leerFloat();
+    x = resultadoFloat[0];
+    y = resultadoFloat[1];
+    z = resultadoFloat[2];
     e = setVector(x, y, z);
 
-    x = leerFloat();
-    y = leerFloat();
-    z = leerFloat();
+    leerFloat();
+    x = resultadoFloat[0];
+    y = resultadoFloat[1];
+    z = resultadoFloat[2];
     Vector vecSuperior = setVector(x, y, z);
 
-    x = leerFloat();
-    y = leerFloat();
-    z = leerFloat();
+    leerFloat();
+    x = resultadoFloat[0];
+    y = resultadoFloat[1];
+    z = resultadoFloat[2];
     Vector vistaDireccion = setVector(x, y, z);
 
 
@@ -169,177 +179,37 @@ void inicioVectores() {
     Vector vecPCruz = pCruz(vecSuperior, w);
     u = escalaVector(vecPCruz,1/magnitud(vecPCruz));
     v = pCruz(w, u);
-
     for (int i = 0; i < numeroLuces; ++i)
     {   
-        x = leerFloat();
-        y = leerFloat();
-        z = leerFloat();
+    	leerFloat();
+    	x = resultadoFloat[0];
+    	y = resultadoFloat[1];
+    	z = resultadoFloat[2];
         luces[i] = setVector(x,y,z);
         luces[i] = escalaVector(luces[i],1/magnitud(luces[i]));
     }
-/*
-    luces[2] = setVector(0,0,15);
-    luces[2] = escalaVector(luces[2],1/magnitud(luces[2]));
 
-    luces[1] = setVector(0,-1,-1);
-    luces[1] = escalaVector(luces[1],1/magnitud(luces[1]));
-
-    luces[0] = setVector(0,1,-1);
-    luces[0] = escalaVector(luces[0],1/magnitud(luces[0]));
-
-    luces[3] = setVector(-1,1,1);
-    luces[3] = escalaVector(luces[3],1/magnitud(luces[3]));
-*/
     for (int i = 0; i < numeroEsferas; ++i){
-        esferas[i].r = leerFloat();
-        x = leerFloat();
-        y = leerFloat();
-        z = leerFloat();
+
+    	leerFloat();
+        esferas[i].r = resultadoFloat[0];
+        x = resultadoFloat[1];
+    	y = resultadoFloat[2];
+    	z = resultadoFloat[3];
         esferas[i].c = setVector(x, y, z);
 
-        r = leerInt();
-        g = leerInt();
-        b = leerInt();
-        esferas[i].color = setColor(r,g,b);
+        x = resultadoFloat[4];
+    	y = resultadoFloat[5];
+    	z = resultadoFloat[6];
+        esferas[i].color = setColor(x,y,z);
         esferas[i].id = 3;
         esferas[i].ri = 1;
         esferas[i].refleccion = 1;
+
+
     }
-//    
-/*esferas[1].r = 0.5;
-    esferas[1].c = setVector(0.75, 0, 3.2);
-    esferas[1].color = setColor(235,220,178);
-    esferas[1].id = 8;
-    esferas[1].ri = 1;
-    esferas[1].refleccion = 1;
 
-    esferas[2].r = 0.5;
-    esferas[2].c = setVector(0.75, -1.2, 2.6 );
-    esferas[2].color = setColor(235,220,178);
-    esferas[2].id = 8;
-    esferas[2].ri = 1;
-    esferas[2].refleccion = 1; 
-
-    esferas[3].r = 0.5;
-    esferas[3].c = setVector(0.75, 1.2, 2.6 );
-    esferas[3].color = setColor(235,220,178);
-    esferas[3].id = 8;
-    esferas[3].ri = 1;
-    esferas[3].refleccion = 1; 
-
-    esferas[4].r = 0.5;
-    esferas[4].c = setVector(0.75, 2.4, 1.6);
-    esferas[4].color =  setColor(0, 69, 122);
-    esferas[4].id = 6;
-    esferas[4].ri = 1;
-    esferas[4].refleccion = 1;
-
-    esferas[5].r = 0.5;
-    esferas[5].c = setVector(0.75, -2.4, 1.6);
-    esferas[5].color = setColor(0, 69, 122);
-    esferas[5].id = 7;
-    esferas[5].ri = 1;
-    esferas[5].refleccion = 1;
-
-    esferas[6].r = 0.5;
-    esferas[6].c = setVector(1, 0, 1.6);
-    esferas[6].color = setColor(235,220,178);
-    esferas[6].id = 8;
-    esferas[6].ri = 1;
-    esferas[6].refleccion = 1;
-
-    esferas[7].r = 0.5;
-    esferas[7].c = setVector(1, 1.2, 0.8);
-    esferas[7].color = setColor(0, 69, 122);
-    esferas[7].id = 0;
-    esferas[7].ri = 1;
-    esferas[7].refleccion = 1;
-
-    esferas[8].r = 0.5;
-    esferas[8].c = setVector(1, -1.2, 0.8);
-    esferas[8].color = setColor(0, 69, 122);
-    esferas[8].id = 2;
-    esferas[8].ri = 1;
-    esferas[8].refleccion = 1;
-
-    esferas[9].r = 0.5;
-    esferas[9].c = setVector(1, 0, 0 );
-    esferas[9].color = setColor(49, 36, 184);
-    esferas[9].id = 8;
-    esferas[9].ri = 1;
-    esferas[9].refleccion = 1; 
-
-    esferas[10].r = 0.5;
-    esferas[10].c = setVector(1, 2.4, 0);
-    esferas[10].color = setColor(173,96,144);
-    esferas[10].id = 8;
-    esferas[10].ri = 1;
-    esferas[10].refleccion = 1;  
-
-    esferas[11].r = 0.5;
-    esferas[11].c = setVector(1, -2.4, 0);
-    esferas[11].color = setColor(18, 1, 53);
-    esferas[11].id = 8;
-    esferas[11].ri = 1;
-    esferas[11].refleccion = 1;
-
-    esferas[12].r = 0.5;
-    esferas[12].c = setVector(1, 1.2, -0.8);
-    esferas[12].color = setColor(49, 36, 184);
-    esferas[12].id = 3;
-    esferas[12].ri = 1;
-    esferas[12].refleccion = 1; 
-
-    esferas[13].r = 0.5;
-    esferas[13].c = setVector(1, -1.2, -0.8);
-    esferas[13].color = setColor(49, 36, 184);
-    esferas[13].id = 1;
-    esferas[13].ri = 1;
-    esferas[13].refleccion = 1;
-
-    esferas[14].r = 0.5;
-    esferas[14].c = setVector(1, 2.4, -1.6);
-    esferas[14].color = setColor(173,96,144);
-    esferas[14].id = 2;
-    esferas[14].ri = 1;
-    esferas[14].refleccion = 1;
-    
-    esferas[15].r = 0.5;
-    esferas[15].c = setVector(1, -2.4, -1.6);
-    esferas[15].color = setColor(18, 1, 53);
-    esferas[15].id = 5;
-    esferas[15].ri = 1;
-    esferas[15].refleccion = 1; 
-
-    esferas[16].r = 0.5;
-    esferas[16].c = setVector(1, 0, -1.6);
-    esferas[16].color = setColor(49, 36, 184);
-    esferas[16].id = 8;
-    esferas[16].ri = 1;
-    esferas[16].refleccion = 1; 
-
-    esferas[17].r = 0.5;
-    esferas[17].c = setVector(1, 0, -3.2);
-    esferas[17].color = setColor(201,211,206);
-    esferas[17].id = 8;
-    esferas[17].ri = 1;
-    esferas[17].refleccion = 1; 
-
-    esferas[18].r = 0.5;
-    esferas[18].c = setVector(1, 1.2, -2.6 );
-    esferas[18].color = setColor(173,96,144);
-    esferas[18].id = 8;
-    esferas[18].ri = 1;
-    esferas[18].refleccion = 1; 
-
-    esferas[19].r = 0.5;
-    esferas[19].c = setVector(1, -1.2, -2.6 );
-    esferas[19].color = setColor(18, 1, 53);
-    esferas[19].id = 8;
-    esferas[19].ri = 1;
-    esferas[19].refleccion = 1; 
-*/
+ 
 }
 
 float calculoInterseccion(Rayo rayo, Esfera esfera){
@@ -523,11 +393,9 @@ int main(int argc, char** argv){
             exit(0);
         }
     }
-    leerCaracter();
-    //int y = leerInt;
-    //printf("%d\n",y);
-    //inicioVectores();
-    //display();
+
+    inicioVectores();
+    display();
 
     return 0;
 }
